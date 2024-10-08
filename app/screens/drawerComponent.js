@@ -86,12 +86,36 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
                 <Text style={styles.iconText}>Profile</Text>
                 </View>
               </TouchableOpacity>
-              
-
-              
-
-
               </>
+              
+            )}
+            {data?.data.role === 'admin' && (
+              <View>
+              <TouchableOpacity onPress={() => navigation.navigate('addProperty')}>
+                <View style={styles.iconTextRow}>
+                <Icon name="add-circle" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>Add Property</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('viewProperty')}>
+              <View style={styles.iconTextRow}>
+                <Icon name="create" style={{fontWeight:'bold'}} size={27} color="white" />
+                <Text style={styles.iconText}>Manage Property</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('marketplace')}>
+                <View style={styles.iconTextRow}>
+                <Icon name="cart" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>Market Place</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('receivedRequest')}>
+                <View style={styles.iconTextRow}>
+                <Icon name="id-card" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>Order Details</Text>
+                </View>
+              </TouchableOpacity>
+              </View>
             )}
             </TouchableOpacity>
             <View style={styles.logoutContainer}>

@@ -66,7 +66,11 @@ function Login({ navigation }) {
                     if (data.password === password) {
                         console.log('Login Successful');
                         if (data.role === 'admin') {
-                            console.log('Unknown role admin');
+                            const loggedInData= {data:data};
+                            setUser(loggedInData);
+                            console.log(loggedInData)
+                            navigation.navigate('MainBar',{data:loggedInData}
+                            );
                         } else if (data.role === 'user') {
                             const loggedInData= {data:data};
                             setUser(loggedInData);
