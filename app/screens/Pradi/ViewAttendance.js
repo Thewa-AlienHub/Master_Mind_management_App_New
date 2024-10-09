@@ -1,115 +1,169 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   FlatList,
-  Image,
-  Alert,
+  TouchableOpacity,
 } from "react-native";
-import { collection, query, where, onSnapshot } from "firebase/firestore"; // Import Firestore methods
-import * as Print from "expo-print";
-import * as Sharing from "expo-sharing";
-import * as MediaLibrary from "expo-media-library";
-import { parseISO, compareDesc } from "date-fns";
+import { collection, onSnapshot } from "firebase/firestore";
 import MenuButton from "../../Components/MenuButton";
 import colors from "../../Utils/colors";
-import { DB } from "../../config/DB_config"; // Import your Firestore DB config
+import { DB } from "../../config/DB_config";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
-const ViewAttendance = ({ drawer, navigation, data }) => {
-  const [selectedTab, setSelectedTab] = useState("Today");
+const ViewAttendance = ({ drawer, data }) => {
   const [scanData, setScanData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const email = data.data.email;
+  const timerRef = useRef();
 
   useEffect(() => {
-    const dataRef = collection(DB, "attendance"); // Reference to your attendance collection
-    const userAttendanceQuery = query(
-      dataRef,
-      where("email", "==", email) // Query for logged-in user's attendance
-    );
+    console.log("Current selected date:", selectedDate);
+  }, [selectedDate]);
 
-    const unsubscribe = onSnapshot(userAttendanceQuery, (snapshot) => {
+  useEffect(() => {
+    const dataRef = collection(DB, "attendance");
+
+    const unsubscribe = onSnapshot(dataRef, (snapshot) => {
       const fetchedData = [];
       snapshot.forEach((doc) => {
-        fetchedData.push({ id: doc.id, ...doc.data() });
+        if (doc.id.startsWith(email)) {
+          const data = doc.data();
+          const checkInTime = data.checkInTime?.toDate
+            ? data.checkInTime.toDate()
+            : new Date(data.checkInTime);
+          const checkOutTime = data.checkOutTime?.toDate
+            ? data.checkOutTime.toDate()
+            : null;
+
+          const formattedDate = checkInTime.toLocaleDateString("en-GB");
+          const formattedCheckInTime = checkInTime.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          });
+          const formattedCheckOutTime = checkOutTime
+            ? checkOutTime.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })
+            : "--:--:--";
+
+          // Calculate total worked hours
+          let totalWorkedMilliseconds = checkOutTime
+            ? checkOutTime.getTime() - checkInTime.getTime()
+            : Date.now() - checkInTime.getTime();
+
+          const totalWorkedSeconds = Math.floor(totalWorkedMilliseconds / 1000);
+          const totalWorkedHours = Math.floor(totalWorkedSeconds / 3600);
+          const totalWorkedMinutes = Math.floor(
+            (totalWorkedSeconds % 3600) / 60
+          );
+          const totalWorkedRemainingSeconds = totalWorkedSeconds % 60;
+
+          const formattedTotalWorkedHours = `${totalWorkedHours}h ${totalWorkedMinutes}min ${totalWorkedRemainingSeconds}s`;
+
+          fetchedData.push({
+            id: doc.id,
+            ...data,
+            date: formattedDate,
+            checkInTime: formattedCheckInTime,
+            checkOutTime: formattedCheckOutTime,
+            totalWorkedHours: formattedTotalWorkedHours,
+            checkInTimestamp: checkInTime,
+            isCheckedOut: checkOutTime === null,
+          });
+        }
       });
 
-      console.log("Fetched Data Before Sorting:", fetchedData); // Debug log
-
-      // Sort the fetched data by date in descending order (latest first)
-      const sortedData = fetchedData.sort((a, b) => {
-        const dateA = new Date(a.dateAndTime);
-        const dateB = new Date(b.dateAndTime);
-        return compareDesc(dateA, dateB);
-      });
-
-      setScanData(sortedData);
+      const sortedData = fetchedData.sort(
+        (a, b) => b.checkInTimestamp - a.checkInTimestamp
+      );
+      setScanData(sortedData); // Set all fetched data
     });
 
-    return () => unsubscribe();
-  }, [email]); // Add email as a dependency
+    return () => {
+      unsubscribe();
+      clearInterval(timerRef.current);
+    };
+  }, [email]);
 
-  const handleViewReport = (item) => {
-    navigation.navigate("ReportView", { report: item });
-  };
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setScanData((prevData) => {
+        return prevData.map((item) => {
+          // Only update for items that are not checked out
+          if (item.isCheckedOut) {
+            const totalWorkedMilliseconds =
+              Date.now() - item.checkInTimestamp.getTime();
+            const totalWorkedSeconds = Math.floor(
+              totalWorkedMilliseconds / 1000
+            );
+            const totalWorkedHours = Math.floor(totalWorkedSeconds / 3600);
+            const totalWorkedMinutes = Math.floor(
+              (totalWorkedSeconds % 3600) / 60
+            );
+            const totalWorkedRemainingSeconds = totalWorkedSeconds % 60;
 
-  const handleDownloadAll = async () => {
-    try {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permission Denied",
-          "Storage permission is required to save files."
-        );
-        return;
-      }
+            // Update the total worked hours
+            const formattedTotalWorkedHours = `${totalWorkedHours}h ${totalWorkedMinutes}min ${totalWorkedRemainingSeconds}s`;
 
-      const htmlContent = scanData
-        .map(
-          (item) => `
-          <h1>${item.houseAddress}</h1>
-          <p>Location: ${item.ownerNam}</p>
-          <p>Date: ${item.readableDate}</p>
-          <hr/>
-        `
-        )
-        .join("");
+            return {
+              ...item,
+              totalWorkedHours: formattedTotalWorkedHours,
+            };
+          }
 
-      const { uri: pdfUri } = await Print.printToFileAsync({
-        html: htmlContent,
+          return item; // If checked out, return item without changes
+        });
       });
+    }, 1000); // Update every second
 
-      console.log("PDF file created at:", pdfUri); // Debugging log to verify the file path
-
-      // Save and share the PDF file as in your original code...
-    } catch (error) {
-      console.error("Error creating or sharing PDF:", error);
-      Alert.alert("Error", "Failed to download the PDF. Please try again.");
-    }
-  };
+    return () => clearInterval(timerRef.current); // Cleanup the interval on unmount
+  }, []);
 
   const renderItem = ({ item }) => (
     <View style={styles.listItem}>
-      <Image
-        source={require("../../assets/Pradi/file-icon.png")}
-        style={styles.fileIcon}
-      />
       <View style={styles.itemTextContainer}>
-        <Text style={styles.itemTitle}>{item.name}</Text>
-        <Text style={styles.itemSubtitle}>{item.location}</Text>
-        <Text style={styles.itemSubtitle}>{item.readableDate}</Text>
-      </View>
-      <View style={styles.actionIcons}>
-        <TouchableOpacity onPress={() => handleViewReport(item)}>
-          <Image
-            source={require("../../assets/Pradi/view-icon.png")}
-            style={styles.actionIcon}
-          />
-        </TouchableOpacity>
+        <Text style={styles.itemTitle}>Date: {item.date}</Text>
+        <Text style={styles.itemSubtitle}>Check-In: {item.checkInTime}</Text>
+        <Text style={styles.itemSubtitle}>Check-Out: {item.checkOutTime}</Text>
+        <Text style={styles.itemSubtitle}>
+          Total Worked Hours: {item.totalWorkedHours}
+        </Text>
       </View>
     </View>
   );
+
+  const showPicker = () => {
+    setShowDatePicker(true);
+  };
+
+  const onDateChange = (event, date) => {
+    console.log("Event Type: ", event.type);
+    console.log("Selected Date: ", date);
+
+    if (event.type === "set" && date) {
+      setSelectedDate(date); // Set the selected date
+      console.log("Updated Selected Date: ", date);
+    }
+
+    setShowDatePicker(false); // Always close the date picker after selection
+  };
+
+  const removeFilter = () => {
+    setSelectedDate(null); // Reset the selected date
+  };
+
+  // Determine which data to display
+  const filteredData = selectedDate
+    ? scanData.filter(
+        (item) => item.date === selectedDate.toLocaleDateString("en-GB")
+      ) // Filter by selected date
+    : scanData; // Show all records if no date selected
 
   return (
     <View style={styles.container}>
@@ -119,37 +173,41 @@ const ViewAttendance = ({ drawer, navigation, data }) => {
           onPress={() => drawer.current.openDrawer()}
         />
       </View>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Scanning History</Text>
-      </View>
+      <Text style={styles.headerText1}>Attendance</Text>
+      <Text style={styles.headerText2}>History</Text>
 
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[styles.tab, selectedTab === "Today" && styles.selectedTab]}
-          onPress={() => setSelectedTab("Today")}
-        >
-          <Text style={styles.tabText}>Today</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, selectedTab === "All" && styles.selectedTab]}
-          onPress={() => setSelectedTab("All")}
-        >
-          <Text style={styles.tabText}>All</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.downloadAllButton}
-          onPress={handleDownloadAll}
-        >
-          <Text style={styles.downloadAllButtonText}>Download All</Text>
-        </TouchableOpacity>
-      </View>
+      <View style={styles.TopBarContainer}>
+        <View style={styles.inputContainer}>
+          <TouchableOpacity style={styles.searchButton} onPress={showPicker}>
+            <Text style={styles.buttonText}>Filter By Date</Text>
+          </TouchableOpacity>
 
-      <FlatList
-        data={scanData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.list}
-      />
+          {/* New Remove Filter Button */}
+          <TouchableOpacity style={styles.removeButton} onPress={removeFilter}>
+            <Text style={styles.removeButtonText}>Remove Filter</Text>
+          </TouchableOpacity>
+        </View>
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={selectedDate || new Date()}
+            mode="date"
+            display="default"
+            onChange={onDateChange}
+          />
+        )}
+
+        {filteredData.length === 0 ? (
+          <Text>No attendance records found for the selected date.</Text>
+        ) : (
+          <FlatList
+            data={filteredData}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.list}
+          />
+        )}
+      </View>
     </View>
   );
 };
@@ -157,66 +215,23 @@ const ViewAttendance = ({ drawer, navigation, data }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 20,
-    marginTop: 70,
-  },
-  backButton: {
-    position: "absolute",
-    top: 20,
-    left: 20,
-    padding: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1,
-  },
-  backIcon: {
-    width: 40,
-    height: 40,
-  },
-  header: {
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#00CE5E",
-  },
-  tabsContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginBottom: 10,
-  },
-  tab: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: "#6EC6B2",
-    marginHorizontal: 5,
-  },
-  selectedTab: {
-    backgroundColor: "#00CE5E",
-  },
-  tabText: {
-    color: "#ffffff",
-    fontWeight: "bold",
+    backgroundColor: colors.secondary,
   },
   list: {
-    paddingVertical: 10,
+    paddingBottom: 20,
   },
   listItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#E6F4F4",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  fileIcon: {
-    width: 40,
-    height: 40,
-    marginRight: 15,
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    marginLeft: 20,
+    marginRight: 20,
+    marginBottom: 5,
+    backgroundColor: colors.listBg,
+    borderRadius: 30,
+    paddingVertical: 15,
   },
   itemTextContainer: {
     flex: 1,
@@ -224,37 +239,75 @@ const styles = StyleSheet.create({
   itemTitle: {
     fontSize: 16,
     fontWeight: "bold",
+    marginBottom: 5,
   },
   itemSubtitle: {
     fontSize: 14,
-    color: "#ffffff",
-  },
-  actionIcons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: 90,
-  },
-  actionIcon: {
-    width: 40,
-    height: 40,
-  },
-  downloadAllButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: "#00CE5E",
-    marginHorizontal: 5,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  downloadAllButtonText: {
-    color: "#ffffff",
-    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 2,
   },
   menubtn: {
     marginTop: 40,
     marginLeft: 10,
     position: "absolute",
+  },
+  headerText1: {
+    color: colors.white,
+    fontSize: 40,
+    fontWeight: "bold",
+    position: "absolute",
+    top: 70,
+    right: 40,
+  },
+  headerText2: {
+    color: colors.white,
+    fontSize: 40,
+    fontWeight: "bold",
+    position: "absolute",
+    top: 115,
+    right: 40,
+  },
+  TopBarContainer: {
+    backgroundColor: colors.white,
+    borderTopStartRadius: 70,
+    borderTopEndRadius: 70,
+    flex: 1,
+    paddingTop: 10,
+    marginTop: 170,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    margin: 10,
+    marginLeft: 60,
+    marginRight: 60,
+    justifyContent: "space-between",
+  },
+  searchButton: {
+    backgroundColor: colors.white,
+    borderColor: colors.secondary,
+    borderWidth: 2,
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  removeButton: {
+    backgroundColor: colors.secondary, // Set the button color to secondary
+    borderColor: colors.secondary,
+    borderWidth: 2,
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  removeButtonText: {
+    color: colors.black, // Set the text color to black
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  buttonText: {
+    color: colors.black, // Text color for button
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

@@ -53,7 +53,7 @@ const SuccessScreen = () => {
   }, [routeCheckInTime]);
 
   const handleOk = () => {
-    navigation.navigate("Attendance");
+    navigation.navigate("ViewAttendance");
   };
 
   return (
