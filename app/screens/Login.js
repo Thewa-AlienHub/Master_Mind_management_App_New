@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, StatusBar, Platform, useWindowDimensions, TextInput, ScrollView, ActivityIndicator, Image } from 'react-native';
-import colors from '../Utils/colors'; 
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { DB } from '../config/DB_config';
-import { useFocusEffect } from '@react-navigation/native';
-
+import React, { useState } from "react";
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  StatusBar,
+  Platform,
+  useWindowDimensions,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+  Image,
+} from "react-native";
+import colors from "../Utils/colors";
+import { DB, doc, setDoc, getDoc } from "../config/DB_config";
+import { useFocusEffect } from "@react-navigation/native";
 
 function Login({ navigation }) {
     const [user, setUser] = useState(null);
@@ -17,14 +27,14 @@ function Login({ navigation }) {
     const { width } = useWindowDimensions();
     const isMobile = width < 600;
 
-    useFocusEffect(
-        React.useCallback(() => {
-            setEmail('thewan2001@gmail.com');
-            setPassword('Thewan@123');
-            setEmailError('');
-            setPasswordError('');
-        }, [])
-    );
+  useFocusEffect(
+    React.useCallback(() => {
+      setEmail("pradi3@gmail.com");
+      setPassword("11223344");
+      setEmailError("");
+      setPasswordError("");
+    }, [])
+  );
 
     function validateInputs() {
         let valid = true;
@@ -61,33 +71,37 @@ function Login({ navigation }) {
                 const docRef = doc(DB, "Users", email);
                 const docSnap = await getDoc(docRef);
 
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data.password === password) {
-                        console.log('Login Successful');
-                        if (data.role === 'admin') {
-                            console.log('Unknown role admin');
-                        } else if (data.role === 'user') {
-                            const loggedInData= {data:data};
-                            setUser(loggedInData);
-                            console.log(loggedInData)
-                            navigation.navigate('MainBar',{data:loggedInData}
-                            );
-                        } else {
-                            console.log('Unknown role');
-                        }
-                    } else {
-                        setPasswordError('Incorrect password');
-                    }
-                } else {
-                    setEmailError('No user found with this email');
-                }
-            } catch (error) {
-                console.log('Error fetching', error);
-            } finally {
-                setLoading(false);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.password === password) {
+            console.log("Login Successful");
+            if (data.role === "admin") {
+              console.log("Unknown role admin");
+            } else if (data.role === "user") {
+              const loggedInData = { data: data };
+              setUser(loggedInData);
+              console.log(loggedInData);
+              navigation.navigate("MainBar", { data: loggedInData });
+            } else if (data.role === "staff") {
+              const loggedInData = { data: data };
+              setUser(loggedInData);
+              console.log(loggedInData);
+              navigation.navigate("MainBar", { data: loggedInData });
+            } else {
+              console.log("Unknown role");
             }
-        };
+          } else {
+            setPasswordError("Incorrect password");
+          }
+        } else {
+          setEmailError("No user found with this email");
+        }
+      } catch (error) {
+        console.log("Error fetching", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
         fetchLoginData();
     }

@@ -80,36 +80,136 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => navigation.navigate('Profile3')}>
-                <View style={styles.iconTextRow}>
-                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
-                <Text style={styles.iconText}>Profile</Text>
-                </View>
-              </TouchableOpacity>
-              
-
-              
-
-
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Profile3")}
+                >
+                  <View style={styles.iconTextRow}>
+                    <Icon
+                      name="create-sharp"
+                      style={{
+                        fontWeight: "bold",
+                        color: colors.white,
+                        fontSize: 30,
+                      }}
+                    />
+                    <Text style={styles.iconText}>Profile</Text>
+                  </View>
+                </TouchableOpacity>
               </>
             )}
+            {/* Pradi */}
+            {data?.data.role === "staff" && (
+              <>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Attendance")}
+                >
+                  <View style={styles.iconTextRow}>
+                    <Icon
+                      name="checkmark-done-outline"
+                      style={{
+                        fontWeight: "bold",
+                        color: colors.white,
+                        fontSize: 30,
+                      }}
+                    />
+                    <Text style={styles.iconText}>Mark Attendance</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("ViewAttendance")}
+                >
+                  <View style={styles.iconTextRow}>
+                    <Icon
+                      name="clipboard-outline"
+                      style={{
+                        fontWeight: "bold",
+                        color: colors.white,
+                        fontSize: 30,
+                      }}
+                    />
+                    <Text style={styles.iconText}>View Attendance</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("RequestLeave")}
+                >
+                  <View style={styles.iconTextRow}>
+                    <Icon
+                      name="document-text-outline"
+                      style={{
+                        fontWeight: "bold",
+                        color: colors.white,
+                        fontSize: 30,
+                      }}
+                    />
+                    <Text style={styles.iconText}>New Leave Request</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Profile3")}
+                >
+                  <View style={styles.iconTextRow}>
+                    <Icon
+                      name="list-outline"
+                      style={{
+                        fontWeight: "bold",
+                        color: colors.white,
+                        fontSize: 30,
+                      }}
+                    />
+                    <Text style={styles.iconText}>My Leave Request</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Profile3")}
+                >
+                  <View style={styles.iconTextRow}>
+                    <Icon
+                      name="cash-outline"
+                      style={{
+                        fontWeight: "bold",
+                        color: colors.white,
+                        fontSize: 30,
+                      }}
+                    />
+                    <Text style={styles.iconText}>Salary View</Text>
+                  </View>
+                </TouchableOpacity>
+              </>
+            )}
+          </TouchableOpacity>
+          <View style={styles.logoutContainer}>
+            <TouchableOpacity
+              style={styles.logoutTouchable}
+              onPress={handleLogout}
+            >
+              <Icon
+                name="arrow-back-sharp"
+                style={{
+                  fontWeight: "bold",
+                  color: colors.white,
+                  fontSize: 30,
+                }}
+              />
+              <Text style={styles.logoutIconText}>Log Out</Text>
             </TouchableOpacity>
-            <View style={styles.logoutContainer}>
-            <TouchableOpacity style={styles.logoutTouchable} onPress={handleLogout}>
-                <Icon name="arrow-back-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
-                <Text style={styles.logoutIconText}>Log Out</Text>
-              </TouchableOpacity>
-            </View>
           </View>
-          <View style={styles.menuSidecontainer}>
-                <View style={styles.backbuttoncontainer} >
-                  <Icon name ="chevron-back-sharp" style={{fontSize:40,color:colors.white}} onPress={() => drawer.current.closeDrawer()}/>
-                </View>
-                <View style={styles.backbuttonSidecontainer} onPress={() => drawer.current.closeDrawer()}>
-
-                </View>
-
+        </View>
+        <View style={styles.menuSidecontainer}>
+          <View style={styles.backbuttoncontainer}>
+            <Icon
+              name="chevron-back-sharp"
+              style={{ fontSize: 40, color: colors.white }}
+              onPress={() => drawer.current.closeDrawer()}
+            />
           </View>
+          <View
+            style={styles.backbuttonSidecontainer}
+            onPress={() => drawer.current.closeDrawer()}
+          ></View>
+        </View>
       </View>
     </View>
   );
