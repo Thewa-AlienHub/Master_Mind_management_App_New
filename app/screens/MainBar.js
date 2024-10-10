@@ -17,6 +17,7 @@ import MenuButton from '../Components/MenuButton'; // Import the externalized me
 import Profile from './Profile';
 import MainTabs from '../Components/MainTabs';
 import Profile3 from './Profile3';
+import MaintenanceAdd from './kk/MaintenanceAdd';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
