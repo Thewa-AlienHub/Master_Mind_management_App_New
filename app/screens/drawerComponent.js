@@ -1,11 +1,18 @@
-import React, { useRef,useState, useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet,Text ,Image,Dimensions} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import colors from '../Utils/colors';
-import { getAuth, signOut } from 'firebase/auth';
-import {initializeApp} from 'firebase/app';
-import {getStorage,ref,getDownloadURL} from 'firebase/storage';
-import { storage } from '../config/DB_config';
+import React, { useRef, useState, useEffect } from "react";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  Image,
+  Dimensions,
+} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import colors from "../Utils/colors";
+import { getAuth, signOut } from "firebase/auth";
+import { initializeApp } from "firebase/app";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import { storage } from "../config/DB_config";
 
 const { width, height } = Dimensions.get('window');
 const DrawerComponent = ({ navigation, drawer ,data}) => {
@@ -148,7 +155,7 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={() => navigation.navigate("Profile3")}
+                  onPress={() => navigation.navigate("ViewLeaveRequest")}
                 >
                   <View style={styles.iconTextRow}>
                     <Icon

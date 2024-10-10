@@ -13,4 +13,7 @@ export default {
   line1: "#C0C0C0",
   logocontainer: "#2e63e8",
   listBg: "#a3b9f2",
+  brown: "#6a4a3a",
+  red: "#FF0000",
+  green: "#03AC13",
 };

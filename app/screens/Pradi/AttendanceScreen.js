@@ -7,9 +7,9 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import colors from "../../Utils/colors";
-import Icon from "react-native-vector-icons/Ionicons";
+import MenuButton from "../../Components/MenuButton";
 import {
   DB,
   doc,
@@ -19,9 +19,7 @@ import {
   collection,
   getDocs,
 } from "../../config/DB_config";
-import { query, where } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import MenuButton from "../../Components/MenuButton";
+import { query, where, orderBy, limit } from "firebase/firestore";
 
 const AttendanceScreen = ({ drawer, navigation, data }) => {
   const [mode, setMode] = useState("Check In");
@@ -32,22 +30,21 @@ const AttendanceScreen = ({ drawer, navigation, data }) => {
   const [checkInTime, setCheckInTime] = useState(null);
 
   // Get the user's email from the data parameter
-  const email = data.data.email; // Assuming data contains the user's email
+  const email = data.data.email;
 
-  useEffect(() => {
-    console.log("Logged in user's email:", email);
-  }, [email]);
-
-  // On load, check if it's a new day and reset the states
-  useEffect(() => {
-    const today = new Date().toDateString();
-    if (currentDate !== today) {
-      setMode("Check In");
-      setIsCheckInButtonDisabled(false);
-      setIsCheckOutButtonDisabled(true);
-      setCurrentDate(today);
-    }
-  }, [currentDate]);
+  // This effect runs when the component is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      const today = new Date().toDateString();
+      // Reset states if the date changes
+      if (currentDate !== today) {
+        setMode("Check In");
+        setIsCheckInButtonDisabled(false);
+        setIsCheckOutButtonDisabled(true);
+        setCurrentDate(today);
+      }
+    }, [currentDate])
+  );
 
   const toggleMode = (newMode) => {
     setMode(newMode);
@@ -98,7 +95,7 @@ const AttendanceScreen = ({ drawer, navigation, data }) => {
       setIsCheckInButtonDisabled(true);
       setIsCheckOutButtonDisabled(false);
       setCheckInTime(checkInTimestamp);
-      navigation.navigate("SuccessScreen", { checkInTime: checkInTimestamp });
+      navigation.navigate("CISuccessScreen", { checkInTime: checkInTimestamp });
     } catch (error) {
       console.error("Error during check-in:", error);
     }
@@ -107,29 +104,39 @@ const AttendanceScreen = ({ drawer, navigation, data }) => {
   const handleCheckOut = async () => {
     try {
       const attendanceCollectionRef = collection(DB, "attendance");
+
+      // Query for the most recent check-in record for the user
       const snapshot = await getDocs(
-        query(attendanceCollectionRef, where("userId", "==", email))
+        query(
+          attendanceCollectionRef,
+          where("userId", "==", email),
+          orderBy("checkInTime", "desc"), // Assuming you want the latest check-in
+          limit(1) // Get only the latest check-in
+        )
       );
 
-      // Find the document ID to update for check-out
       let documentIdToUpdate;
       if (!snapshot.empty) {
-        documentIdToUpdate = snapshot.docs[snapshot.docs.length - 1].id; // Update the last checked-in document
+        documentIdToUpdate = snapshot.docs[0].id; // Get the latest document ID
       } else {
         console.error("No check-in record found for check-out.");
-        return; // Exit if no record found
+        return; // No check-in found, exit the function
       }
 
-      const attendanceDocRef = doc(DB, "attendance", documentIdToUpdate);
+      // Get the reference to the document you want to update
+      const attendanceDocRef = doc(attendanceCollectionRef, documentIdToUpdate);
 
+      // Update the checkOutTime
       await updateDoc(attendanceDocRef, {
         checkOutTime: serverTimestamp(),
       });
 
-      console.log("Check-out time recorded.");
-
+      console.log(
+        "Check-out time recorded for document ID:",
+        documentIdToUpdate
+      );
       setIsCheckOutButtonDisabled(true);
-      navigation.navigate("SuccessScreen");
+      navigation.navigate("COSuccessScreen");
     } catch (error) {
       console.error("Error during check-out:", error);
     }
@@ -299,7 +306,7 @@ const styles = StyleSheet.create({
     width: 300,
     padding: 12,
     marginTop: 40,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.Button1,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 30,

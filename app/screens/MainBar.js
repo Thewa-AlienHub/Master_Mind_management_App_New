@@ -20,7 +20,11 @@ import Profile3 from "./Profile3";
 import AttendanceScreen from "./Pradi/AttendanceScreen";
 import RequestLeave from "./Pradi/RequestLeave";
 import ViewAttendance from "./Pradi/ViewAttendance";
-import SuccessScreen from "./Pradi/SuccessScreen";
+import CISuccessScreen from "./Pradi/CISuccessScreen";
+import ViewLeaveRequest from "./Pradi/ViewLeaveRequest";
+import COSuccessScreen from "./Pradi/COSuccessScreen";
+import LeaveSuccess from "./Pradi/LeaveSuccess";
+import UpdateSuccess from "./Pradi/UpdateSuccess";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -84,9 +88,49 @@ const MainBar = ({ navigation, route }) => {
             />
           )}
         </Stack.Screen>
-        <Stack.Screen name="SuccessScreen">
+        <Stack.Screen name="CISuccessScreen">
           {(props) => (
-            <SuccessScreen
+            <CISuccessScreen
+              {...props}
+              navigation={navigation}
+              drawer={drawer}
+              data={data}
+            />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="COSuccessScreen">
+          {(props) => (
+            <COSuccessScreen
+              {...props}
+              navigation={navigation}
+              drawer={drawer}
+              data={data}
+            />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="ViewLeaveRequest">
+          {(props) => (
+            <ViewLeaveRequest
+              {...props}
+              navigation={navigation}
+              drawer={drawer}
+              data={data}
+            />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="LeaveSuccess">
+          {(props) => (
+            <LeaveSuccess
+              {...props}
+              navigation={navigation}
+              drawer={drawer}
+              data={data}
+            />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="UpdateSuccess">
+          {(props) => (
+            <UpdateSuccess
               {...props}
               navigation={navigation}
               drawer={drawer}

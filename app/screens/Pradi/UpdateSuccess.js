@@ -12,7 +12,7 @@ import colors from "../../Utils/colors";
 import Icon from "react-native-vector-icons/Ionicons";
 import { DB, doc, getDoc } from "../../config/DB_config";
 
-const SuccessScreen = () => {
+const UpdateSuccess = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [checkInTime, setCheckInTime] = useState(null);
@@ -53,14 +53,14 @@ const SuccessScreen = () => {
   }, [routeCheckInTime]);
 
   const handleOk = () => {
-    navigation.navigate("ViewAttendance");
+    navigation.navigate("ViewLeaveRequest");
   };
 
   return (
     <View style={styles.container}>
       {/* Top bar */}
       <View style={styles.TopBarContainer}>
-        <Text style={styles.headerText1}>Check-In</Text>
+        <Text style={styles.headerText1}>Leave Update</Text>
         <Text style={styles.headerText2}>Successful</Text>
       </View>
 
@@ -70,7 +70,7 @@ const SuccessScreen = () => {
         <Icon
           name="checkmark-circle-outline"
           size={100}
-          color={colors.primary}
+          color={colors.secondary}
           style={styles.checkIcon}
         />
 
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   TopBarContainer: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     borderBottomStartRadius: 130,
     borderBottomEndRadius: 130,
     height: 400,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   okButton: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.Button1,
     paddingVertical: 10,
     paddingHorizontal: 40,
     borderRadius: 20,
@@ -151,4 +151,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SuccessScreen;
+export default UpdateSuccess;

@@ -10,16 +10,27 @@ import {
   ActivityIndicator,
   Platform,
   StatusBar,
+  Alert,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { DB, collection, addDoc } from "../../config/DB_config"; // DB import
+import {
+  DB,
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+  updateDoc,
+  setDoc,
+  doc,
+} from "../../config/DB_config"; // Import necessary functions
+import { query, where } from "firebase/firestore";
 import colors from "../../Utils/colors";
 import MenuButton from "../../Components/MenuButton";
 
-const RequestLeave = ({ drawer, data, navigation }) => {
+const RequestLeave = ({ drawer, data, navigation, route }) => {
   const [staffId, setStaffId] = useState("");
   const [staffName, setStaffName] = useState("");
   const [leaveType, setLeaveType] = useState("Short Leave");
@@ -31,6 +42,31 @@ const RequestLeave = ({ drawer, data, navigation }) => {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  const { leaveRequest } = route.params || {};
+
+  // Get the user's email from the data parameter
+  const email = data.data.email;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userRef = collection(DB, "Users"); // Assuming the user collection is named "Users"
+        const q = query(userRef, where("staffId", "==", email));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const userData = querySnapshot.docs[0].data();
+          setStaffId(email); // Assuming you have a staffId field in user data
+          setStaffName(`${userData.FirstName} ${userData.LastName}`); // Combine first and last name
+        }
+      } catch (error) {
+        console.error("Error fetching user data: ", error);
+      }
+    };
+
+    fetchUserData();
+  }, [email]); // Fetch data when the component mounts or email changes
 
   useEffect(() => {
     if (Object.keys(error).length > 0) {
@@ -48,24 +84,10 @@ const RequestLeave = ({ drawer, data, navigation }) => {
     }
   }, [error]);
 
-  const handleBack = () => {
-    navigation.navigate("QRScan");
-  };
-
   const handleSubmit = async () => {
     setError({});
     let isValid = true;
     let newErrors = {};
-
-    if (!staffId.trim()) {
-      newErrors.staffId = "Staff ID is required";
-      isValid = false;
-    }
-
-    if (!staffName.trim()) {
-      newErrors.staffName = "Staff name is required";
-      isValid = false;
-    }
 
     if (!reason.trim()) {
       newErrors.reason = "Reason is required";
@@ -80,29 +102,97 @@ const RequestLeave = ({ drawer, data, navigation }) => {
     try {
       setLoading(true);
 
-      const leaveRequestRef = collection(DB, "LeaveRequests");
-      await addDoc(leaveRequestRef, {
-        staffId,
-        staffName,
-        leaveType,
-        reason,
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
-        status: "Pending",
-      });
+      if (leaveRequest) {
+        // Update existing leave request
+        await updateDoc(doc(DB, "LeaveRequests", leaveRequest.id), {
+          leaveType,
+          reason,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+        });
+        navigation.navigate("UpdateSuccess");
+      } else {
+        // Create new leave request
+        const leaveRequestRef = collection(DB, "LeaveRequests");
 
-      setStaffId("");
-      setStaffName("");
-      setLeaveType("Short Leave");
-      setReason("");
-      setStartDate(new Date());
-      setEndDate(new Date());
+        // Check for existing leave requests to generate the new ID
+        const userLeavesQuery = await getDocs(
+          query(leaveRequestRef, where("staffId", "==", email))
+        );
 
-      navigation.navigate("Success");
+        let newSuffix = 1;
+
+        if (!userLeavesQuery.empty) {
+          const suffixes = userLeavesQuery.docs.map((doc) => {
+            const id = doc.id;
+            const parts = id.split("_l");
+            return parseInt(parts[1], 10) || 0;
+          });
+
+          newSuffix = Math.max(...suffixes) + 1;
+        }
+
+        const newDocumentId = `${email}_l${newSuffix}`;
+        const leaveRequestDocRef = doc(leaveRequestRef, newDocumentId);
+        const RequestedDate = serverTimestamp();
+
+        await setDoc(leaveRequestDocRef, {
+          staffId: email,
+          RequestDate: RequestedDate,
+          staffName: data.data.FirstName,
+          leaveType,
+          reason,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          status: "Pending",
+        });
+
+        console.log("Request leave recorded with document ID:", newDocumentId);
+
+        // Reset fields after successful submission
+        setLeaveType("Short Leave");
+        setReason("");
+        setStartDate(new Date());
+        setEndDate(new Date());
+
+        navigation.navigate("LeaveSuccess");
+      }
     } catch (error) {
       console.error("Error submitting data: ", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (leaveRequest) {
+      setLeaveType(leaveRequest.leaveType);
+      setReason(leaveRequest.reason);
+      setStartDate(leaveRequest.startDate);
+      setEndDate(leaveRequest.endDate);
+
+      if (leaveRequest.startDate && leaveRequest.endDate) {
+        setStartDate(new Date(leaveRequest.startDate));
+        setEndDate(new Date(leaveRequest.endDate));
+      }
+    }
+  }, [leaveRequest]);
+
+  const handleUpdate = async () => {
+    if (leaveRequest) {
+      try {
+        await updateDoc(doc(DB, "LeaveRequests", leaveRequest.id), {
+          leaveType,
+          reason,
+          startDate,
+          endDate,
+        });
+        Alert.alert("Success", "Leave request updated successfully!");
+        navigation.goBack(); // Navigate back after updating
+      } catch (error) {
+        console.error("Error updating leave request: ", error);
+        Alert.alert("Error", "Failed to update the leave request.");
+      }
     }
   };
 
@@ -126,27 +216,17 @@ const RequestLeave = ({ drawer, data, navigation }) => {
           <TextInput
             style={styles.inputBox}
             placeholder="Staff ID"
-            value={staffId}
-            onChangeText={setStaffId}
+            value={email}
+            editable={false}
           />
-          {error.staffId && (
-            <Animated.View style={{ opacity: opacityAnim }}>
-              <Text style={styles.errorText}>{error.staffId}</Text>
-            </Animated.View>
-          )}
-
           <Text style={styles.label}>Staff Name:</Text>
           <TextInput
             style={styles.inputBox}
             placeholder="Staff Name"
-            value={staffName}
-            onChangeText={setStaffName}
+            value={data.data.FirstName}
+            editable={false}
           />
-          {error.staffName && (
-            <Animated.View style={{ opacity: opacityAnim }}>
-              <Text style={styles.errorText}>{error.staffName}</Text>
-            </Animated.View>
-          )}
+
           <Text style={styles.label}>Leave Type:</Text>
           <View style={styles.pickerContainer}>
             <Picker
@@ -179,17 +259,25 @@ const RequestLeave = ({ drawer, data, navigation }) => {
             onPress={() => setShowStartDatePicker(true)}
             style={styles.inputBox}
           >
-            <Text>{startDate.toLocaleString()}</Text>
+            <Text>
+              {`${startDate ? startDate.toLocaleDateString() : "Select Date"} ${
+                startDate
+                  ? startDate.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : ""
+              }`}
+            </Text>
           </TouchableOpacity>
           {showStartDatePicker && (
             <DateTimePicker
-              value={startDate || new Date()}
-              mode="datetime"
-              display={Platform.OS === "android" ? "spinner" : "default"}
-              onChange={(event, date) => {
-                setShowStartDatePicker(false); // Hide the picker
-                if (date) {
-                  setStartDate(date); // Set the date only if it's not null
+              value={startDate}
+              mode="date"
+              onChange={(event, selectedDate) => {
+                setShowStartDatePicker(false); // Close the picker
+                if (selectedDate) {
+                  setStartDate(selectedDate);
                 }
               }}
             />
@@ -200,30 +288,36 @@ const RequestLeave = ({ drawer, data, navigation }) => {
             onPress={() => setShowEndDatePicker(true)}
             style={styles.inputBox}
           >
-            <Text>{endDate.toLocaleString()}</Text>
+            <Text>
+              {`${endDate.toLocaleDateString()} ${endDate.toLocaleTimeString(
+                [],
+                { hour: "2-digit", minute: "2-digit" }
+              )}`}
+            </Text>
           </TouchableOpacity>
           {showEndDatePicker && (
             <DateTimePicker
-              value={endDate || new Date()}
-              mode="datetime"
-              display={Platform.OS === "android" ? "spinner" : "default"}
-              onChange={(event, date) => {
-                setShowEndDatePicker(false); // Hide the picker
-                if (date) {
-                  setEndDate(date); // Set the date only if it's not null
+              value={endDate}
+              mode="date"
+              onChange={(event, selectedDate) => {
+                setShowEndDatePicker(false); // Close the picker
+                if (selectedDate) {
+                  setEndDate(selectedDate);
                 }
               }}
             />
           )}
         </ScrollView>
 
-        {/* Submit Button (fixed at the bottom) */}
+        {/* Submit Button */}
         <View style={styles.ButtonContainer}>
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             {loading ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Request Leave</Text>
+              <Text style={styles.buttonText}>
+                {leaveRequest ? "Update" : "Submit"} Leave Request
+              </Text>
             )}
           </TouchableOpacity>
         </View>
@@ -235,7 +329,7 @@ const RequestLeave = ({ drawer, data, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
   },
   headerText1: {
     color: colors.white,
@@ -273,7 +367,7 @@ const styles = StyleSheet.create({
     paddingLeft: 25,
     paddingTop: 20,
     fontSize: 16,
-    color: colors.primary,
+    color: colors.secondary,
   },
   inputBox: {
     marginHorizontal: 20,
@@ -282,14 +376,14 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
     borderRadius: 10,
-    borderColor: colors.primary,
+    borderColor: colors.secondary,
     borderWidth: 1,
     justifyContent: "center",
     marginTop: 5,
   },
   pickerContainer: {
     marginHorizontal: 20,
-    borderColor: colors.primary,
+    borderColor: colors.secondary,
     borderRadius: 10,
     borderWidth: 1,
     backgroundColor: colors.white,
@@ -308,8 +402,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   button: {
-    backgroundColor: colors.primary,
-    borderRadius: 10,
+    backgroundColor: colors.Button1,
+    borderRadius: 25,
     height: 60,
     justifyContent: "center",
     alignItems: "center",

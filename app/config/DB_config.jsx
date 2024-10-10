@@ -9,6 +9,7 @@ import {
   getDoc,
   getDocs,
   collection,
+  addDoc,
 } from "firebase/firestore";
 import {
   getDatabase,
@@ -31,7 +32,7 @@ const firebaseConfig = {
   projectId: "uee-project-mm",
   storageBucket: "uee-project-mm.appspot.com",
   messagingSenderId: "13111926717",
-  appId: "1:13111926717:web:3dcff591dc21e8041efcd4"
+  appId: "1:13111926717:web:3dcff591dc21e8041efcd4",
 };
 
 // Initialize Firebase
@@ -41,6 +42,7 @@ const DB = getFirestore(app);
 export const storage = getStorage(app);
 export {
   DB,
+  addDoc,
   doc,
   ref,
   setDoc,
