@@ -39,7 +39,7 @@ const MainTabs = ({ navigation, drawer, data }) => {
           ),
         }}
       >
-        {() => <Home drawer={drawer} />}
+        {() => <Home drawer={drawer} data={data} navigation={navigation}/>}
       </Tab.Screen>
 
       <Tab.Screen

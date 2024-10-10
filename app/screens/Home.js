@@ -3,8 +3,11 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import MenuButton from '../Components/MenuButton'; // Import MenuButton
 import colors from '../Utils/colors';
 import NotificationBell from '../Components/NotificationBell';
+import MaintenanceAddForHome from './kk/MaintenanceAddForHome';
 
-const Home = ({ drawer }) => {
+const Home = ({ drawer,navigation,data }) => {
+  console.log('email'+data.data.email);
+  
   const advertisements = [
     { id: 1, text: "Ad 1: Special Sale Today!" },
     { id: 2, text: "Ad 2: Buy One Get One Free!" },
@@ -41,26 +44,7 @@ const Home = ({ drawer }) => {
       {/* Scrollable Content in homeContainer */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.homeContainer}>
-          <Text style={styles.homeText}>Content 1</Text>
-          <Text style={styles.homeText}>Content 2</Text>
-          <Text style={styles.homeText}>Content 3</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          {/* Add as many content items as you want */}
+          <MaintenanceAddForHome navigation={navigation} email={data.data.email}/>
         </View>
       </ScrollView>
     </View>

@@ -86,6 +86,36 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
                 <Text style={styles.iconText}>Profile</Text>
                 </View>
               </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('MaintenanceAdd',{email:data.data.email})}>
+                <View style={styles.iconTextRow}>
+                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>Add maintenance</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('IssueList',{email:data.data.email})}>
+                <View style={styles.iconTextRow}>
+                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>your maintenance</Text>
+                </View>
+              </TouchableOpacity>
+              
+
+              
+
+
+              </>
+            )}
+            {data?.data.role === 'admin' && (
+              <>
+              
+              <TouchableOpacity onPress={() => navigation.navigate('MaintenanceAddAdmin')}>
+                <View style={styles.iconTextRow}>
+                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>Issues</Text>
+                </View>
+              </TouchableOpacity>
+
+              
               
 
               
