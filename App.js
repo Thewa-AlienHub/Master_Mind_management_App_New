@@ -25,6 +25,7 @@ import EditIssueComplex from './app/screens/kk/EditIssueComplex';
 import MaintenanceAddForHome from './app/screens/kk/MaintenanceAddForHome';
 import ViewIssueSimpleAdmin from './app/screens/kk/Admin/ViewIssuesSimpleAdmin';
 import ViewIssueComplexAdmin from './app/screens/kk/Admin/ViewIssueComplexAdmin';
+import LandingPage from './app/screens/LandingPage';
 
 
 
@@ -36,8 +37,13 @@ export default function App() {
   return (
 
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Login'>
+      <Stack.Navigator initialRouteName='LandingPage'>
 
+      <Stack.Screen
+          name='LandingPage'
+          component={LandingPage}
+          options={{headerShown : false}}
+        />
       <Stack.Screen
           name='Login'
           component={Login}
