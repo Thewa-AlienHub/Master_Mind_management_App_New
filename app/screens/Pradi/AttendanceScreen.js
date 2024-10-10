@@ -60,10 +60,7 @@ const AttendanceScreen = ({ drawer, navigation, data }) => {
 
   const handleCheckIn = async () => {
     try {
-      // Get a reference to the attendance collection
       const attendanceCollectionRef = collection(DB, "attendance");
-
-      // Fetch all attendance records for this user
       const snapshot = await getDocs(
         query(attendanceCollectionRef, where("userId", "==", email))
       );
@@ -105,26 +102,25 @@ const AttendanceScreen = ({ drawer, navigation, data }) => {
     try {
       const attendanceCollectionRef = collection(DB, "attendance");
 
-      // Query for the most recent check-in record for the user
+      // Get the documents sorted by creation timestamp (checkInTime) in descending order
       const snapshot = await getDocs(
         query(
           attendanceCollectionRef,
           where("userId", "==", email),
-          orderBy("checkInTime", "desc"), // Assuming you want the latest check-in
-          limit(1) // Get only the latest check-in
+          orderBy("checkInTime", "desc"),
+          limit(1) // Only get the most recent check-in
         )
       );
 
       let documentIdToUpdate;
       if (!snapshot.empty) {
-        documentIdToUpdate = snapshot.docs[0].id; // Get the latest document ID
+        documentIdToUpdate = snapshot.docs[0].id; // Get the latest document
       } else {
         console.error("No check-in record found for check-out.");
-        return; // No check-in found, exit the function
+        return;
       }
 
-      // Get the reference to the document you want to update
-      const attendanceDocRef = doc(attendanceCollectionRef, documentIdToUpdate);
+      const attendanceDocRef = doc(DB, "attendance", documentIdToUpdate);
 
       // Update the checkOutTime
       await updateDoc(attendanceDocRef, {
