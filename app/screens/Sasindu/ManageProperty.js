@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        marginLeft: 185,
+        marginLeft: 175,
     },
     formbackground: {
         backgroundColor: 'white',

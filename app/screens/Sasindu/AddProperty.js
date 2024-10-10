@@ -20,6 +20,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import { DB } from '../../config/DB_config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../config/DB_config';
+import AddPropertyNotification from './AddPropertyNotification';
 
 function AddProperty({ navigation }) {
   const { width } = useWindowDimensions();
@@ -33,6 +34,7 @@ function AddProperty({ navigation }) {
   const [phoneImageUri, setPhoneImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({}); // State for errors
+  const [notification, setNotification] = useState(''); 
 
   const validateFields = () => {
     const newErrors = {};
@@ -99,6 +101,11 @@ function AddProperty({ navigation }) {
         phoneImageUrl,
         createdAt: new Date(),
       });
+
+      setNotification(`Property "${name}" added successfully at a price of ${price}!`);
+
+        // Navigate to AddPropertyNotification and pass name and price
+        navigation.navigate('addNotification', { name, price });
   
       Alert.alert('Success', 'Property added successfully!!', [
         { text: 'OK', onPress: () => navigation.navigate('addProperty') },
@@ -185,7 +192,7 @@ function AddProperty({ navigation }) {
               <View style={{ top: 15 }}>
                 {/* Recycle Type Picker */}
                 <View style={styles.LableContainer}>
-                  <Text style={styles.label}>Recycle Type :</Text>
+                  <Text style={styles.label}>Property Type :</Text>
                 </View>
                 <View style={[styles.pickerContainer, errors.type && styles.inputError]}>
                   <Picker

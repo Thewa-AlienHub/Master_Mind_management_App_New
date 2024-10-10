@@ -7,7 +7,7 @@ import { DB } from '../../config/DB_config';
 import colors from '../../Utils/colors';
 
 function Cart({ navigation, route }) {
-  const { email, clearCart } = route.params || {};  // Destructure clearCart param if it exists
+  const { email, clearCart } = route.params || {};  
   console.log('Received email marketplace:', email);
   
   const [cartItems, setCartItems] = useState([]);
@@ -72,7 +72,7 @@ function Cart({ navigation, route }) {
             <Icon name="chevron-back-outline" size={34} color="white" />
           </TouchableOpacity>
           <View style={styles.rightButtons}>
-            <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.backButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('addNotification')} style={styles.backButton}>
               <Icon name="notifications" size={28} color="white" />
             </TouchableOpacity>
           </View>
@@ -98,7 +98,7 @@ function Cart({ navigation, route }) {
         <Text style={styles.totalAmount}>Rs : {totalAmount}</Text>
       </View>
       <View style={{ backgroundColor: 'white' }}>
-        <TouchableOpacity style={styles.checkoutButton} onPress={() => navigation.navigate('placeOrder', { cartItems, totalAmount })}>
+        <TouchableOpacity style={styles.checkoutButton} onPress={() => navigation.navigate('placeOrder', { cartItems, totalAmount,email })}>
           <Text style={styles.checkoutButtonText}>Checkout</Text>
         </TouchableOpacity>
       </View>
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   TopBar1: {
-    fontSize: 41,
+    fontSize: 35,
     color: colors.white,
     fontWeight: 'bold',
     top: -19,

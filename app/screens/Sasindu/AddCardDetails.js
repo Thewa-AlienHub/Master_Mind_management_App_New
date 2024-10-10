@@ -87,7 +87,7 @@ function AddCardDetails({ navigation, route }) {
                         <Icon name="chevron-back-outline" size={34} color="white" />
                     </TouchableOpacity>
                     <View style={styles.rightButtons}>
-                        <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.backButton}>
+                        <TouchableOpacity onPress={() => navigation.navigate('addNotification')} style={styles.backButton}>
                             <Icon name="notifications" size={28} color="white" />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => navigation.navigate('success',{email})} style={styles.backButton}>
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     TopBar1: {
-        fontSize: 41,
+        fontSize: 35,
         color: colors.white,
         fontWeight: 'bold',
         top: -19,

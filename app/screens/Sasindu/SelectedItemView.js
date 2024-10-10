@@ -12,6 +12,8 @@ function SelectedItemView({ route, navigation }) {
   const { propertyId } = route.params; // Get propertyId from route params
   const [property, setProperty] = useState(null); // State to hold property data
   const [loading, setLoading] = useState(true); // State for loading
+  const [cartItems, setCartItems] = useState([]); // Add this to initialize the cartItems state
+
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -32,6 +34,17 @@ function SelectedItemView({ route, navigation }) {
     fetchProperty();
   }, [propertyId]); // Fetch property details when component mounts
 
+  useEffect(() => {
+    const updateCartCount = async () => {
+      const storedCartItems = await AsyncStorage.getItem('cartItems');
+      const updatedCartItems = storedCartItems ? JSON.parse(storedCartItems) : [];
+      setCartItems(updatedCartItems); // Set the updated cart items state
+    };
+
+    const unsubscribe = navigation.addListener('focus', updateCartCount);
+    return unsubscribe; // Clean up the listener on unmount
+  }, [navigation]);
+
   if (loading) {
     // Show a loading indicator while data is being fetched
     return (
@@ -41,6 +54,8 @@ function SelectedItemView({ route, navigation }) {
       </View>
     );
   }
+
+ 
 
   const addItemToCart = async () => {
     try {
@@ -85,6 +100,8 @@ function SelectedItemView({ route, navigation }) {
     }
   };
 
+ 
+
   return (
     <View style={styles.container}>
       <View style={styles.TopBarContainer}>
@@ -98,6 +115,11 @@ function SelectedItemView({ route, navigation }) {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('cart', { email })} style={styles.backButton}>
               <Icon name="cart" size={30} color="white" />
+              {cartItems.length > 0 && (
+                <View style={styles.cartCountContainer}>
+                  <Text style={styles.cartCountText}>{cartItems.length}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -144,15 +166,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 14,
+    paddingHorizontal: 15,
     position: 'absolute',
-    top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    top: 45
   },
   rightButtons: {
     flexDirection: 'row',
   },
   backButton: {
     marginLeft: 8,
+  },
+  cartCountContainer: {
+    position: 'absolute',
+    right: -10,
+    top: -10,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartCountText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
   },
   TopBar: {
     fontSize: 30,

@@ -166,7 +166,8 @@ function OrderDetails({ navigation }) {
                 </TouchableOpacity>
                 
                 <View style={styles.topBarTextContainer}>
-                    <Text style={styles.TopBarTitle}>Order Details</Text>
+                    <Text style={styles.TopBar}>Order</Text>
+                    <Text style={styles.TopBar1}>Details</Text>
                 </View>
             </View>
             <View style={styles.formBackground}>
@@ -181,14 +182,16 @@ function OrderDetails({ navigation }) {
                             keyExtractor={(item) => item.id}
                             contentContainerStyle={styles.listContainer}
                         />
-                        
+                         <View style={styles.pdfbtn}>
+                            <TouchableOpacity onPress={generateOrderPDF} style={styles.pdfIconButton}>
+                                <View style={styles.pdfIconContainer}>
+                                    <Icon name="document-text-outline" size={30} color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </>
                 )}
-                <TouchableOpacity onPress={generateOrderPDF} style={styles.pdfIconButton}>
-                    <View style={styles.pdfIconContainer}>
-                        <Icon name="document-text-outline" size={30} color="white" />
-                    </View>
-                </TouchableOpacity>
+               
             </View>
             
         </View>
@@ -208,20 +211,34 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight * 1.7 : 0,
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight * 2 : 0,
     },
     backButton: {
         position: 'absolute',
         left: 14,
         top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
-    topBarTextContainer: {
-        alignItems: 'center',
-    },
-    TopBarTitle: {
-        fontSize: 30,
-        color: 'white',
-    },
+    TopBar: {
+        fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 30 : 40,
+        fontSize: 41,
+        color: colors.white,
+        fontWeight: 'bold',
+        top:-15
+      },
+      TopBar1: {
+        fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 30 : 40,
+        fontSize: 41,
+        color: colors.white,
+        fontWeight: 'bold',
+        top:-22
+       
+      },
+      topBarTextContainer: {
+        flexDirection: 'column', // Ensure the text is displayed in a column
+        alignItems: 'center',    // Center the text horizontally
+        justifyContent: 'center',// Center the text vertically
+        marginLeft:220,
+      },
     formBackground: {
         backgroundColor: 'white',
         flex: 1,
@@ -292,22 +309,21 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginTop: 6,
     },
-   pdfIconButton: {
-    left: 290,
-    top: -80,
-},
-
-pdfIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 30,
-    backgroundColor: colors.btn,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    pdfbtn: {
+        alignItems:'flex-end',
+        top:-10,
+    },
+    pdfIconContainer: {
+        width: 56,
+        height: 56,
+        borderRadius: 30,
+        backgroundColor: colors.btn,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
 },
 });
 

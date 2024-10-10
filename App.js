@@ -16,6 +16,8 @@ import PlaceOrder from './app/screens/Sasindu/PlaceOrder';
 import AddCardDetails from './app/screens/Sasindu/AddCardDetails';
 import SuccessScreen from './app/screens/Sasindu/SuccessScreen_01';
 import OrderDetails from './app/screens/Sasindu/OrderDetails';
+import MyOrders from './app/screens/Sasindu/MyOrders';
+import AddPropertyNotification from './app/screens/Sasindu/AddPropertyNotification';
 
 
 
@@ -97,7 +99,18 @@ export default function App() {
           name='orderDetails'
           component={OrderDetails}
           options={{headerShown : false}}
-        />            
+        />
+    <Stack.Screen
+          name='myOrders'
+          component={MyOrders}
+          options={{headerShown : false}}
+        />   
+    <Stack.Screen
+          name='addNotification'
+          component={AddPropertyNotification}
+          options={{headerShown : false}}
+        />   
+
         
       </Stack.Navigator>
     </NavigationContainer>

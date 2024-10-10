@@ -80,10 +80,10 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => navigation.navigate('cart',{ email:data?.data?.email })}>
+              <TouchableOpacity onPress={() => navigation.navigate('myOrders',{ email:data?.data?.email })}>
                 <View style={styles.iconTextRow}>
-                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
-                <Text style={styles.iconText}>Profile</Text>
+                <Icon name="bag-check" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>My Orders</Text>
                 </View>
               </TouchableOpacity>
               </>

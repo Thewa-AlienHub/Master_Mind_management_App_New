@@ -8,11 +8,13 @@ import {
   Text,
   ScrollView,
   Image,
+  TextInput, // Import TextInput for the search bar
 } from 'react-native';
 import colors from '../../Utils/colors';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { collection, getDocs } from 'firebase/firestore';
 import { DB } from '../../config/DB_config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function MarketPlace({ navigation, route }) {
   const { email } = route.params || {};
@@ -21,6 +23,8 @@ function MarketPlace({ navigation, route }) {
   const [properties, setProperties] = useState([]); // State to hold property data
   const [selectedType, setSelectedType] = useState(''); // State to hold selected filter type
   const [filteredProperties, setFilteredProperties] = useState([]); // State for filtered properties
+  const [cartItems, setCartItems] = useState([]); // State to hold cart items
+  const [searchQuery, setSearchQuery] = useState(''); // State for search query
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -37,18 +41,54 @@ function MarketPlace({ navigation, route }) {
       }
     };
 
+    const fetchCartItems = async () => {
+      const storedCartItems = await AsyncStorage.getItem('cartItems');
+      const cartItems = storedCartItems ? JSON.parse(storedCartItems) : [];
+      setCartItems(cartItems); // Set the cart items state
+    };
+
     fetchProperties();
+    fetchCartItems();
   }, []);
 
-  // Function to filter properties based on selected type
+  useEffect(() => {
+    const updateCartCount = async () => {
+      const storedCartItems = await AsyncStorage.getItem('cartItems');
+      const updatedCartItems = storedCartItems ? JSON.parse(storedCartItems) : [];
+      setCartItems(updatedCartItems); // Set the updated cart items state
+    };
+
+    const unsubscribe = navigation.addListener('focus', updateCartCount);
+    return unsubscribe; // Clean up the listener on unmount
+  }, [navigation]);
+
+  // Function to filter properties based on selected type and search query
   const handleFilter = (type) => {
     setSelectedType(type);
-    if (type === '') {
-      setFilteredProperties(properties); // If no type selected, show all properties
-    } else {
-      const filtered = properties.filter((property) => property.type === type);
-      setFilteredProperties(filtered);
+    filterProperties(type, searchQuery); // Update the filtering logic to include the search query
+  };
+
+  // Function to filter properties based on both type and search query
+  const filterProperties = (type, query) => {
+    let filtered = properties;
+
+    if (type !== '') {
+      filtered = filtered.filter((property) => property.type === type);
     }
+
+    if (query !== '') {
+      filtered = filtered.filter((property) =>
+        property.name.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    setFilteredProperties(filtered);
+  };
+
+  // Function to handle search input changes
+  const handleSearch = (text) => {
+    setSearchQuery(text);
+    filterProperties(selectedType, text); // Update filtering based on the search query
   };
 
   return (
@@ -59,11 +99,16 @@ function MarketPlace({ navigation, route }) {
             <Icon name="chevron-back-outline" size={34} color="white" />
           </TouchableOpacity>
           <View style={styles.rightButtons}>
-            <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.backButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('addNotification')} style={styles.backButton}>
               <Icon name="notifications" size={28} color="white" />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('cart', { email })} style={styles.backButton}>
               <Icon name="cart" size={30} color="white" />
+              {cartItems.length > 0 && (
+                <View style={styles.cartCountContainer}>
+                  <Text style={styles.cartCountText}>{cartItems.length}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -73,8 +118,18 @@ function MarketPlace({ navigation, route }) {
       </View>
 
       <View style={styles.formbackground}>
-        {/* Filter Buttons with Circular Background */}
-        <Text style={{marginLeft:22,fontSize:19,fontWeight:'bold',color:'#343434'}}>Category</Text>
+         {/* Search Bar */}
+         <View style={styles.searchContainer}>
+            <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
+            <TextInput
+                style={styles.searchInput}
+                placeholder="Search properties..."
+                placeholderTextColor="#567FE8" 
+                value={searchQuery}
+                onChangeText={handleSearch}
+            />
+            </View>
+        <Text style={{ marginLeft: 22, fontSize: 18, fontWeight: 'bold', color: '#343434' }}>Category</Text>
         <View style={styles.filterContainer}>
           <TouchableOpacity onPress={() => handleFilter('')} style={styles.filterButton}>
             <View style={styles.iconCircle}>
@@ -84,7 +139,7 @@ function MarketPlace({ navigation, route }) {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleFilter('Apartments')} style={styles.filterButton}>
             <View style={styles.iconCircle}>
-              <Icon name="home-outline" style={{fontWeight:'900'}} size={30} color={selectedType === 'Apartments' ? colors.btn : 'gray'} />
+              <Icon name="home-outline" style={{ fontWeight: '900' }} size={30} color={selectedType === 'Apartments' ? colors.btn : 'gray'} />
             </View>
             <Text style={styles.iconText}>Apartments</Text>
           </TouchableOpacity>
@@ -152,8 +207,40 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 14,
     position: 'absolute',
-    top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    top: 45
   },
+  cartCountContainer: {
+    position: 'absolute',
+    right: -10,
+    top: -10,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartCountText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  notificationCountContainer: {
+    position: 'absolute',
+    right: -10,
+    top: -10,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+},
+notificationCountText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
+},
   rightButtons: {
     flexDirection: 'row',
   },
@@ -161,7 +248,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   TopBar1: {
-    fontSize: 41,
+    fontSize: 34,
     color: colors.white,
     fontWeight: 'bold',
     top: -19,
@@ -187,10 +274,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconCircle: {
-    backgroundColor: '#DFE8FF',
+    backgroundColor: '#D6E2FF',
     borderRadius: 50,
-    width: 60,
-    height: 60,
+    width: 55,
+    height: 55,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 5,
@@ -244,6 +331,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     marginTop: 20,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 40,
+    marginBottom: 10,
+    marginHorizontal: 20,
+    paddingHorizontal: 10,
+    backgroundColor:'#D1DEFF',
+    
+  },
+  searchInput: {
+    flex: 1, // Take up the remaining space
+    height: 49,
+    paddingLeft: 10,
+    fontWeight:'bold',
+  },
+  searchIcon: {
+    marginRight: 6, // Space between the icon and text input
+    color:'#567FE8',
+    marginLeft:20
   },
 });
 
