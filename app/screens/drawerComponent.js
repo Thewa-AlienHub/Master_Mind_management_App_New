@@ -73,14 +73,14 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
             {data?.data.role === 'user' && (
               <>
               
-              <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+              <TouchableOpacity onPress={() => navigation.navigate('marketplace' ,{ email:data?.data?.email })}>
                 <View style={styles.iconTextRow}>
-                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
-                <Text style={styles.iconText}>Add Recycle Request</Text>
+                <Icon name="storefront" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>Market Place</Text>
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => navigation.navigate('Profile3')}>
+              <TouchableOpacity onPress={() => navigation.navigate('cart',{ email:data?.data?.email })}>
                 <View style={styles.iconTextRow}>
                 <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
                 <Text style={styles.iconText}>Profile</Text>
@@ -103,13 +103,13 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
                 <Text style={styles.iconText}>Manage Property</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('marketplace')}>
+            <TouchableOpacity onPress={() => navigation.navigate('marketplace',{ email:data?.data?.email })}>
                 <View style={styles.iconTextRow}>
-                <Icon name="cart" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Icon name="storefront" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
                 <Text style={styles.iconText}>Market Place</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('receivedRequest')}>
+              <TouchableOpacity onPress={() => navigation.navigate('orderDetails')}>
                 <View style={styles.iconTextRow}>
                 <Icon name="id-card" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
                 <Text style={styles.iconText}>Order Details</Text>

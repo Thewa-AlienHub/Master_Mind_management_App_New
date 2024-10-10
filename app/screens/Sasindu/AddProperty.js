@@ -41,7 +41,7 @@ function AddProperty({ navigation }) {
       newErrors.type = "Property type is required";
     }
     if (!name) {
-      newErrors.type = "Property name is required";
+      newErrors.name = "Property name is required";
     }
 
     if (!price) {
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E2E2E2', // Light grey background for placeholder
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth:3
+    borderWidth:1
     
   },
   plusIconContainer: {
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   inputBox: {
     height: 50,
     margin: 12,
-    borderWidth: 2,
+    borderWidth: 1,
     padding: 10,
     borderColor: '#567FE8',
     fontSize: 18,
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   pickerContainer: {
-    borderWidth: 2,
+    borderWidth: 1,
     backgroundColor: '#F7F9FF',
     borderColor: '#567FE8',
     borderRadius: 10,

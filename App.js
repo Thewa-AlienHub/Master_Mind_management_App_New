@@ -11,6 +11,11 @@ import ManageProperty from './app/screens/Sasindu/ManageProperty';
 import UpdateAndDeleteProperty from './app/screens/Sasindu/UpdateAndDeleteProperty';
 import MarketPlace from './app/screens/Sasindu/MarketPlace';
 import SelectedItemView from './app/screens/Sasindu/SelectedItemView';
+import Cart from './app/screens/Sasindu/Cart';
+import PlaceOrder from './app/screens/Sasindu/PlaceOrder';
+import AddCardDetails from './app/screens/Sasindu/AddCardDetails';
+import SuccessScreen from './app/screens/Sasindu/SuccessScreen_01';
+import OrderDetails from './app/screens/Sasindu/OrderDetails';
 
 
 
@@ -67,7 +72,32 @@ export default function App() {
           name='view'
           component={SelectedItemView}
           options={{headerShown : false}}
-        />      
+        />
+    <Stack.Screen
+          name='cart'
+          component={Cart}
+          options={{headerShown : false}}
+        />
+    <Stack.Screen
+          name='placeOrder'
+          component={PlaceOrder}
+          options={{headerShown : false}}
+        /> 
+    <Stack.Screen
+          name='addCard'
+          component={AddCardDetails}
+          options={{headerShown : false}}
+        />
+    <Stack.Screen
+          name='success'
+          component={SuccessScreen}
+          options={{headerShown : false}}
+        /> 
+    <Stack.Screen
+          name='orderDetails'
+          component={OrderDetails}
+          options={{headerShown : false}}
+        />            
         
       </Stack.Navigator>
     </NavigationContainer>

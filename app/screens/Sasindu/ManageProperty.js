@@ -75,11 +75,11 @@ function ManageProperty({ navigation }) {
                     />
                 )} 
             </View>
-        <View style={styles.add}>
+            <View style={styles.add}>
                     <TouchableOpacity style={{backgroundColor:"white"}}  onPress={() => navigation.navigate('addProperty')}>
-                    <Icon name="add-circle" style={{ fontWeight: 'bold', color:'#002C9D', fontSize: 56,marginLeft:310,marginBottom:10 }} />
-                </TouchableOpacity>
-                </View>
+                    <Icon name="add-circle" style={{ fontWeight: 'bold', color:'#002C9D', fontSize: 56,marginLeft:312,marginBottom:10 }} />
+                    </TouchableOpacity>
+            </View>
         </View>
     );
 }

@@ -11,5 +11,6 @@ export default {
     warningcolor1 : '#8d0404',
     inputfields1:'#325bd6',
     line1: '#C0C0C0',
-    logocontainer : '#2e63e8'
+    logocontainer : '#2e63e8',
+    btn : '#002C9D',
 }

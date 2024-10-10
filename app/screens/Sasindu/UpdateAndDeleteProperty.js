@@ -5,6 +5,7 @@ import colors from '../../Utils/colors';
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore'; 
 import { DB } from '../../config/DB_config'; 
 import * as ImagePicker from 'expo-image-picker';
+import { Picker } from '@react-native-picker/picker';
 
 function UpdateAndDeleteProperty({ route, navigation }) {
     const { property } = route.params; // Get the property details passed from the previous screen
@@ -86,13 +87,19 @@ function UpdateAndDeleteProperty({ route, navigation }) {
                 </TouchableOpacity>
                 <View style={{alignItems:'center',top:-10}}><Text style={{fontSize:18,fontWeight:'bold',color:'#002C9D'}}>{type}</Text></View>
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Property Type</Text>
-                    <TextInput 
-                        style={styles.input}
-                        value={type}
-                        onChangeText={setType}
-                    />
-                </View>
+                        <Text style={styles.label}>Property Type</Text>
+                        <View style={styles.pickerContainer}>
+                            <Picker
+                                selectedValue={type}
+                                onValueChange={(itemValue) => setType(itemValue)}
+                                style={styles.picker}
+                            >
+                                <Picker.Item label="Apartments" value="Apartments" />
+                                <Picker.Item label="Furniture" value="Furniture" />
+                                <Picker.Item label="Electronic" value="Electronic" />
+                            </Picker>
+                        </View>
+                    </View>
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Property Name</Text>
                     <TextInput 
@@ -193,25 +200,39 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         fontWeight: 'bold',
         color: 'black',
-        marginLeft:14
+        marginLeft:20
     },
     input: {
         height: 50,
-        width:330,
-        marginLeft:14,
+        width:320,
+        marginLeft:16,
         borderColor: '#567FE8',
-        borderWidth: 2,
+        borderWidth: 1,
         borderRadius: 10,
         paddingHorizontal: 10,
         fontSize: 17,
         backgroundColor: '#F7F9FF',
-        color:'#002C9D',
-        fontWeight:'900'
+        color:'black',
+    },
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: '#567FE8',
+        borderRadius: 10,
+        marginLeft: 14,
+        backgroundColor: '#F7F9FF',
+        width:320,
+        marginLeft:16,
+
+    },
+    picker: {
+        height: 50,
+        width: 320,
     },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 20,
+        marginHorizontal:16
     },
     button: {
         backgroundColor: '#002C9D',
