@@ -1,10 +1,10 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/Ionicons';
-import colors from '../Utils/colors';
-import Home from '../screens/Home'; // Import your Home component
-import Profile from './../screens/Profile';
-import Profile3 from './../screens/Profile3';
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import Icon from "react-native-vector-icons/Ionicons";
+import colors from "../Utils/colors";
+import Home from "../screens/Home"; // Import your Home component
+import Profile from "../screens/Profile_04";
+import Profile3 from "./../screens/Profile3";
 // Import your Profile3 component
 
 const Tab = createBottomTabNavigator();

@@ -14,7 +14,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Home from "./Home";
 import Login from "./Login";
 import MenuButton from "../Components/MenuButton"; // Import the externalized menu button
-import Profile from "./Profile";
+import Profile_04 from "./Profile_04";
 import MainTabs from "../Components/MainTabs";
 import Profile3 from "./Profile3";
 import AttendanceScreen from "./Pradi/AttendanceScreen";
@@ -48,9 +48,9 @@ const MainBar = ({ navigation, route }) => {
       <Stack.Screen name="MainTabs">
           {(props) => <MainTabs {...props} navigation={navigation} drawer={drawer} data={data} />}  
         </Stack.Screen>
-        <Stack.Screen name="Profile3">
+        <Stack.Screen name="Profile_04">
           {(props) => (
-            <Profile3
+            <Profile_04
               {...props}
               navigation={navigation}
               drawer={drawer}

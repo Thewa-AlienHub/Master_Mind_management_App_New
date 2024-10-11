@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   },
   checkInTimeText: {
     fontSize: 18,
-    color: colors.primary,
+    color: colors.secondary,
     fontWeight: "bold",
     marginBottom: 0,
   },

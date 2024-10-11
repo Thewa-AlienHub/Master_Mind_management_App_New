@@ -170,18 +170,18 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate("Profile3")}
+                  onPress={() => navigation.navigate("Profile_04")}
                 >
                   <View style={styles.iconTextRow}>
                     <Icon
-                      name="cash-outline"
+                      name="person-outline"
                       style={{
                         fontWeight: "bold",
                         color: colors.white,
                         fontSize: 30,
                       }}
                     />
-                    <Text style={styles.iconText}>Salary View</Text>
+                    <Text style={styles.iconText}>Profile</Text>
                   </View>
                 </TouchableOpacity>
               </>
