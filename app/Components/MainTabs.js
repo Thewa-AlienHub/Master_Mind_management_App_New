@@ -5,6 +5,7 @@ import colors from '../Utils/colors';
 import Home from '../screens/Home'; // Import your Home component
 import Profile from './../screens/Profile';
 import Profile3 from './../screens/Profile3';
+import AmenityList_03 from './../screens/Thewan/User_03/AmenityList_03';
 // Import your Profile3 component
 
 const Tab = createBottomTabNavigator();
@@ -39,7 +40,7 @@ const MainTabs = ({ navigation, drawer, data }) => {
           ),
         }}
       >
-        {() => <Home drawer={drawer} />}
+        {() => <Home drawer={drawer} navigation={navigation}  data={data} />}
       </Tab.Screen>
 
       <Tab.Screen
@@ -52,10 +53,10 @@ const MainTabs = ({ navigation, drawer, data }) => {
           ),
         }}
       >
-        {() => <Profile navigation={navigation} drawer={drawer} data={data} />}
+        {() => <AmenityList_03 navigation={navigation} drawer={drawer} data={data} />}
         </Tab.Screen>
       <Tab.Screen
-        name="Shopping_Cart"
+        name="Profile3"
         component={Profile3} // Assuming Profile3 is used here
         options={{
           headerShown: false,
