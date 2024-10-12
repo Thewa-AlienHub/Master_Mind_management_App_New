@@ -19,8 +19,8 @@ function Login({ navigation }) {
 
     useFocusEffect(
         React.useCallback(() => {
-            setEmail('thewan2001@gmail.com');
-            setPassword('Thewan@123');
+            setEmail('');
+            setPassword('');
             setEmailError('');
             setPasswordError('');
         }, [])
@@ -65,9 +65,7 @@ function Login({ navigation }) {
                     const data = docSnap.data();
                     if (data.password === password) {
                         console.log('Login Successful');
-                        if (data.role === 'admin') {
-                            console.log('Unknown role admin');
-                        } else if (data.role === 'user') {
+                         if (data.role === 'user' || data.role === 'admin' || data.role === 'staff') {
                             const loggedInData= {data:data};
                             setUser(loggedInData);
                             console.log(loggedInData)
@@ -93,13 +91,13 @@ function Login({ navigation }) {
     }
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+        
             <View style={styles.container}>
                 {loading ? (
                     <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={colors.Button1} />
-                    <Text style={styles.loadingText}>Loading</Text>
-                    </View>
+                    <ActivityIndicator size="large" color={colors.white} />
+                    <Text style={styles.loadingText}>Processing ...</Text>
+                </View>
                 ) : (
                     <>
                         <View style={styles.TopBarContainer}>
@@ -174,7 +172,7 @@ function Login({ navigation }) {
                     </>
                 )}
             </View>
-        </ScrollView>
+        
     );
 }
 
@@ -330,19 +328,14 @@ const styles = StyleSheet.create({
         alignItems: 'center', 
       
     },
-    loadingText:{
-        color:colors.Button1,
-        fontSize:30,
-        textAlign:"center"
+    loadingText: {
+        fontSize: 18,
+        marginTop: 10,
     },
-    loadingContainer:{
-       margin: 100,
-       marginTop:300,
-       justifyContent:"center",
-       backgroundColor:colors.white,
-       padding:20,
-       borderRadius:20,
-          
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 
